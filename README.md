@@ -1,13 +1,13 @@
 # 🥖 OvenOps
 
-**Sistema de gestión operativa para panificadora artesanal**  
+**Sistema de gestión operativa para panificadora**  
 Desarrollado por René Magaña Vega
 
 ---
 
 ## ¿Qué es OvenOps?
 
-OvenOps es un sistema de gestión diseñado para cubrir las operaciones diarias de una panificadora artesanal en Tangancícuaro, Michoacán. Nació de una necesidad real: llevar un control confiable de ventas, producción, inventario y pagos sin depender de hojas de cálculo o registros a mano.
+OvenOps es un sistema de gestión diseñado para cubrir las operaciones diarias de una panificadora en Tangancícuaro, Michoacán. Nació de una necesidad real: llevar un control confiable de ventas, producción, inventario y pagos sin depender de hojas de cálculo o registros a mano.
 
 El sistema persiste toda la información en archivos CSV, lo que lo hace portable, ligero y sin dependencias externas más allá de Python (y, para la interfaz gráfica, `customtkinter`).
 
