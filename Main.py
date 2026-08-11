@@ -2,6 +2,7 @@ from ventas import *
 from datos import *
 from produccion import *
 from inventario import *
+from reparto import *
 
 ahora = datetime.now()
 fecha = ahora.date()
@@ -30,8 +31,8 @@ if ventas_pendientes:
     
     # Mostramos de una vez cuánto dinero hay recuperado
     piezas_rec, cajas_rec, monto_rec = calcular_resumen_piezas(ventas)
-    ventas_piezas_hoy =+ piezas_rec
-    ventas_cajas_hoy =+ cajas_rec
+    ventas_piezas_hoy += piezas_rec
+    ventas_cajas_hoy += cajas_rec
     print(f"Monto recuperado: ${monto_rec:.2f} ({piezas_rec} piezas) ({cajas_rec} cajas)\n")
     
 else:
@@ -49,8 +50,9 @@ while True:
     print("6. Registrar la producción del día")
     print("7. Pagar producción de la semana")
     print("8. Finalizar sesión")
-   
-
+    print("9. Cancelar venta")
+    print("10. Registrar salida de repartidor")
+    print("11. Liquidar repartidor")
 
     
     #Clausula Try / Except
@@ -234,7 +236,7 @@ while True:
         if resultado is None:
             print("No hay producción pendiente para pagar.")
         else:
-            print("Pago generado correctamente")
+            print("\nPago generado correctamente")
             print(f"Fecha: {resultado['fecha_pago']}")
             print(f"Piezas: {resultado['piezas']}")
             print(f"Cajas: {resultado['cajas']}")
@@ -245,6 +247,140 @@ while True:
     elif accion == 8:
         print("Cerrando sistema de gestión. Hasta pronto") 
         break
-       
-    else:         
+        
+    elif accion == 9:
+        if not ventas:
+            print("No hay ventas en el turno actual para cancelar.\n")
+        else:
+            # Mostrar lista
+            print("\n--- VENTAS DEL TURNO ACTUAL ---")
+            for i, v in enumerate(ventas):
+                tipo = "piezas" if v["piezas"] > 0 else "cajas"
+                cantidad = v["piezas"] if tipo == "piezas" else v["cajas"]
+                print(f"  [{i + 1}] {cantidad} {tipo} — ${v['total']:.2f}")
+            print("  [0] Cancelar (no borrar nada)")
+
+            # Elegir
+            while True:
+                seleccion = input("\n¿Cuál venta desea cancelar?: ").strip()
+                if seleccion.isdigit():
+                    seleccion = int(seleccion)
+                    if seleccion == 0:
+                        print("Operación cancelada.\n")
+                        break
+                    if 1 <= seleccion <= len(ventas):
+                        # Confirmación
+                        indice = seleccion - 1
+                        v = ventas[indice]
+                        tipo = "piezas" if v["piezas"] > 0 else "cajas"
+                        cantidad = v["piezas"] if tipo == "piezas" else v["cajas"]
+                        confirmar = input(
+                            f"¿Confirma cancelar {cantidad} {tipo} por ${v['total']:.2f}? (S/N): "
+                        ).strip().lower()
+
+                        if confirmar.startswith("s"):
+                            exito = cancelar_venta(ventas, indice)
+                            if exito:
+                                print(f"✅ Venta cancelada correctamente.\n")
+                            else:
+                                print("Error al cancelar la venta.\n")
+                        else:
+                            print("Operación cancelada.\n")
+                        break
+                print("Selección inválida. Intente de nuevo.")
+    
+    elif accion == 10:
+        nombre = input("Nombre del repartidor: ").strip()
+        id_repartidor = input("ID del repartidor: ").strip()
+        
+        while True:
+            charolas = input("Charolas que se lleva: ").strip()
+            if charolas.isdigit():
+                piezas = int(charolas) * piezas_por_charola
+                break
+            print("Ingresa un número válido.")
+        
+        while True:
+            cajas = input("Cajas que se lleva (0 si ninguna): ").strip()
+            if cajas.isdigit():
+                cajas = int(cajas)
+                break
+            print("Ingresa un número válido.")
+            
+        if piezas == 0 and cajas == 0:
+            print("Debes registrar al menos una pieza o caja.\n")
+        else:
+            from datetime import date
+            exito, mensaje = registrar_salida_repartidor(date.today(), nombre, id_repartidor, piezas, cajas)
+            print(f"{'✅' if exito else '❌'} {mensaje}\n")
+
+    elif accion == 11:
+        pendientes = leer_repartidores_pendientes()
+        
+        if not pendientes:
+            print("No hay repartidores pendientes de liquidar.\n")
+        else:
+            print("\n--- REPARTIDORES PENDIENTES ---")
+            for i, r in enumerate(pendientes):
+                print(f"  [{i + 1}] {r['nombre']} — {r['fecha']} — "
+                    f"{r['piezas_salida']} piezas, {r['cajas_salida']} cajas")
+            print("  [0] Cancelar")
+            
+            while True:
+                seleccion = input("\n¿Cuál repartidor va a liquidar?: ").strip()
+                if seleccion.isdigit():
+                    seleccion = int(seleccion)
+                    if seleccion == 0:
+                        print("Operación cancelada.\n")
+                        break
+                    if 1 <= seleccion <= len(pendientes):
+                        r = pendientes[seleccion - 1]
+                        
+                        while True:
+                            pd = input("Piezas que devuelve (0 si ninguna): ").strip()
+                            if pd.isdigit():
+                                pd = int(pd)
+                                break
+                            print("Ingresa un número válido.")
+                        
+                        while True:
+                            cd = input("Cajas que devuelve (0 si ninguna): ").strip()
+                            if cd.isdigit():
+                                cd = int(cd)
+                                break
+                            print("Ingresa un número válido.")
+                        
+                        while True:
+                            mp = input("Merma de piezas (0 si ninguna): ").strip()
+                            if mp.isdigit():
+                                mp = int(mp)
+                                break
+                            print("Ingresa un número válido.")
+                        
+                        while True:
+                            mc = input("Merma de cajas (0 si ninguna): ").strip()
+                            if mc.isdigit():
+                                mc = int(mc)
+                                break
+                            print("Ingresa un número válido.")
+                        
+                        resumen = liquidar_repartidor(
+                            r["nombre"], r["id_repartidor"], r["fecha"], pd, cd, mp, mc
+                        )
+                        
+                        if resumen:
+                            print(f"\n✅ Liquidación de {resumen['nombre']}:")
+                            print(f"   Piezas vendidas:   {resumen['piezas_vendidas']}")
+                            print(f"   Cajas vendidas:    {resumen['cajas_vendidas']}")
+                            print(f"   Piezas devueltas:  {resumen['piezas_devueltas']}")
+                            print(f"   Cajas devueltas:   {resumen['cajas_devueltas']}")
+                            print(f"   Merma piezas:      {resumen['merma_piezas']}")
+                            print(f"   Merma cajas:       {resumen['merma_cajas']}")
+                            print(f"   💰 Total a cobrar: ${resumen['total']:.2f}\n")
+                        else:
+                            print("❌ Error al liquidar el repartidor.\n")
+                        break
+                print("Selección inválida. Intente de nuevo.")
+    
+    else:               
         print("Opción no reconocida. Intente de nuevo.\n")

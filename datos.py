@@ -36,7 +36,7 @@ def guardar_corte(fecha,ventas):
     
     existe = os.path.exists(archivo)
     
-    with open(archivo, 'a') as f:
+    with open(archivo, 'a', encoding='utf-8') as f:
         
         # Si no existe, escribimos los encabezados primero
         if not existe:
@@ -139,3 +139,49 @@ def leer_cortes():
     except FileNotFoundError:
         print("Aviso: No se encontró el archivo de registros históricos.")
     print("="*49 + "\n")
+    
+    
+def cancelar_venta(ventas, indice):
+    
+    """
+    Cancela la venta en la posición indicada.
+    La elimina de la lista en RAM y la marca como cancelada en el CSV.
+    Devuelve True si tuvo éxito, False si hubo un error.
+    """
+    
+    venta_cancelada = ventas[indice]
+
+    archivo = "ventas_individuales.csv"
+    if not os.path.exists(archivo):
+        return False
+
+    registros_actualizados = []
+    cancelada = False
+
+    try:
+        with open(archivo, "r", encoding="utf-8") as f:
+            lector = csv.DictReader(f)
+            columnas = lector.fieldnames
+            for fila in lector:
+                if (
+                    not cancelada
+                    and fila["estado"].strip() == "abierta"
+                    and int(fila["piezas"]) == venta_cancelada["piezas"]
+                    and int(fila["cajas"]) == venta_cancelada["cajas"]
+                    and float(fila["total"]) == venta_cancelada["total"]
+                ):
+                    fila["estado"] = "cancelada"
+                    cancelada = True
+                registros_actualizados.append(fila)
+
+        with open(archivo, "w", newline="", encoding="utf-8") as f:
+            escritor = csv.DictWriter(f, fieldnames=columnas)
+            escritor.writeheader()
+            escritor.writerows(registros_actualizados)
+
+        ventas.pop(indice)
+        return True
+
+    except Exception as e:
+        print(f"Error al cancelar la venta: {e}")
+        return False    

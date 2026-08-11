@@ -6,7 +6,7 @@ def calcular_precio(piezas, precio):
     return piezas * precio
 
 def calcular_cambio(total, pago):
-    return total - pago 
+    return pago - total 
 
 def confirmar_venta(confirmar):
         

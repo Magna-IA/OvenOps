@@ -1,0 +1,18 @@
+# Artefactos de PyInstaller — se regeneran con el comando de build, no se versionan
+build/
+dist/
+*.spec
+ 
+# Cache de Python
+__pycache__/
+*.pyc
+ 
+# Datos generados en tiempo de ejecución — específicos de cada instalación
+inventario.csv
+ventas_individuales.csv
+reparto.csv
+produccion.csv
+cortes.csv
+pagos.csv
+historial_movimientos.csv
+ 

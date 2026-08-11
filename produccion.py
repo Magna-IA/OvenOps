@@ -53,19 +53,24 @@ def generar_pago():
         columnas = lector.fieldnames
 
         for fila in lector:
+            try:
                 # Usamos .strip() por si hay espacios invisibles
                 
                 fecha_fila = datetime.strptime(fila["fecha"], "%Y-%m-%d").date()
-                
-                if(
-                    fila["estado"].strip() == "pendiente"
-                    and domingo <= fecha_fila <= viernes
-                    ):
-                      
-                    fila['estado'] = "saldado" 
-                    registros_para_pago.append(fila)
- 
+            except (ValueError, KeyError):
+                print(f"Error al procesar la fila: {fila}")
                 registros_actualizados.append(fila)
+                continue
+            
+            if(
+                fila["estado"].strip() == "pendiente"
+                and domingo <= fecha_fila <= viernes
+                ):
+                      
+                fila['estado'] = "saldado" 
+                registros_para_pago.append(fila)
+ 
+            registros_actualizados.append(fila)
                 
     if not registros_para_pago:
         return None
