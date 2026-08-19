@@ -146,29 +146,33 @@ def liquidar_repartidor(nombre, id_repartidor, fecha, piezas_devueltas, cajas_de
  
                     piezas_vendidas = piezas_salida - piezas_devueltas - merma_piezas
                     cajas_vendidas = cajas_salida - cajas_devueltas - merma_cajas
+
+                    if piezas_vendidas < 0 or cajas_vendidas < 0:
+                        resumen = {"error": "Las devoluciones + merma superan lo que salió con el repartidor."}
+                    else:
  
-                    total = (piezas_vendidas * precio_pieza_reparto) + (cajas_vendidas * precio_caja_reparto)
- 
-                    fila["piezas_devueltas"] = piezas_devueltas
-                    fila["cajas_devueltas"] = cajas_devueltas
-                    fila["merma_piezas"] = merma_piezas
-                    fila["merma_cajas"] = merma_cajas
-                    fila["piezas_vendidas"] = piezas_vendidas
-                    fila["cajas_vendidas"] = cajas_vendidas
-                    fila["total"] = round(total, 2)
-                    fila["estado"] = "liquidado"
- 
-                    resumen = {
-                        "nombre": nombre,
-                        "id_repartidor": id_repartidor,
-                        "fecha": fecha,
-                        "piezas_vendidas": piezas_vendidas,
-                        "cajas_vendidas": cajas_vendidas,
-                        "piezas_devueltas": piezas_devueltas,
-                        "cajas_devueltas": cajas_devueltas,
-                        "merma_piezas": merma_piezas,
-                        "merma_cajas": merma_cajas,
-                        "total": total
+                        total = (piezas_vendidas * precio_pieza_reparto) + (cajas_vendidas * precio_caja_reparto)
+    
+                        fila["piezas_devueltas"] = piezas_devueltas
+                        fila["cajas_devueltas"] = cajas_devueltas
+                        fila["merma_piezas"] = merma_piezas
+                        fila["merma_cajas"] = merma_cajas
+                        fila["piezas_vendidas"] = piezas_vendidas
+                        fila["cajas_vendidas"] = cajas_vendidas
+                        fila["total"] = round(total, 2)
+                        fila["estado"] = "liquidado"
+    
+                        resumen = {
+                            "nombre": nombre,
+                            "id_repartidor": id_repartidor,
+                            "fecha": fecha,
+                            "piezas_vendidas": piezas_vendidas,
+                            "cajas_vendidas": cajas_vendidas,
+                            "piezas_devueltas": piezas_devueltas,
+                            "cajas_devueltas": cajas_devueltas,
+                            "merma_piezas": merma_piezas,
+                            "merma_cajas": merma_cajas,
+                            "total": total
                     }
  
                     # Reintegrar devoluciones al inventario

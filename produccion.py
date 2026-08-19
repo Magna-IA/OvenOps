@@ -153,8 +153,8 @@ def generar_pago_produccion(
         total_piezas += int(r['produccion'])
         total_cajas += int(r['cajas'])
 
-    subtotal_piezas = (total_piezas - merma_total_piezas) * precio_pieza
-    subtotal_cajas = (total_cajas - merma_total_cajas) * precio_caja
+    subtotal_piezas = max(0, (total_piezas - merma_total_piezas) * precio_pieza)
+    subtotal_cajas = max(0, (total_cajas - merma_total_cajas) * precio_caja)
 
     total_pago = subtotal_piezas + subtotal_cajas
 

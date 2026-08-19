@@ -1,6 +1,7 @@
 from datetime import datetime
 from config import *
 from datos import *
+from inventario import leer_inventario
 
 def calcular_precio(piezas, precio):
     return piezas * precio
@@ -60,17 +61,17 @@ def mostrar_estado_caja(ventas, tipo = "consulta"):
     else:
         print("Estado: Caja abierta.\n")
                     #venta, pago, ventas, precio_pieza, fecha, hora
-def registrar_venta(cantidad: int,
-                    pago: int,
-                    lista_ventas: list,           # ventas o cajas (lista donde se append el dict)
-                    precio_unitario: float,
-                    tipo: str,                    # "piezas" o "cajas" – para diferenciar en CSV y acumulador
-                    fecha,
-                    hora
-                    ):
-    
+def registrar_venta(cantidad, pago, lista_ventas, precio_unitario, tipo, fecha, hora, piezas_vendidas_hoy=0, cajas_vendidas_hoy=0):
+
+        inventario_actual = leer_inventario()
+        disponible = inventario_actual["piezas"] if tipo == "piezas" else inventario_actual["cajas"]
+        ya_vendido_hoy = piezas_vendidas_hoy if tipo == "piezas" else cajas_vendidas_hoy
+
+        if cantidad > (disponible - ya_vendido_hoy):
+            return False, f"\nInventario insuficiente. Disponible: {disponible - ya_vendido_hoy}\n"
+
         total_venta = calcular_precio(cantidad, precio_unitario)      
-                          
+                           
         #Método para calcular el cambio
                     
         if pago < total_venta:
@@ -86,10 +87,11 @@ def registrar_venta(cantidad: int,
                     "cajas": cantidad if tipo == "cajas" else 0,
                     "total": total_venta
                 }
-        
-            lista_ventas.append(nueva_venta)
                         
             id_venta = generar_id(nueva_venta)
+            nueva_venta["id_venta"] = id_venta 
+                    
+            lista_ventas.append(nueva_venta)
                     
             #Guardamos la venta individualmente
             guardar_ventas(nueva_venta, fecha, hora, id_venta, tipo=tipo)   

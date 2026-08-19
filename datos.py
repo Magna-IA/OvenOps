@@ -166,6 +166,7 @@ def cancelar_venta(ventas, indice):
                 if (
                     not cancelada
                     and fila["estado"].strip() == "abierta"
+                    and fila["id_venta"] == venta_cancelada["id_venta"]
                     and int(fila["piezas"]) == venta_cancelada["piezas"]
                     and int(fila["cajas"]) == venta_cancelada["cajas"]
                     and float(fila["total"]) == venta_cancelada["total"]
